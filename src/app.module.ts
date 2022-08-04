@@ -7,14 +7,65 @@ import { UsersModule } from './users/users.module';
 import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as ormconfig from '../ormconfig';
+import { ChannelChats } from './entities/ChannelChats';
+import { ChannelMembers } from './entities/ChannelMembers';
+import { Channels } from './entities/Channels';
+import { DMs } from './entities/DMs';
+import { Mentions } from './entities/Mentions';
+import { Users } from './entities/Users';
+import { WorkspaceMembers } from './entities/WorkspaceMembers';
+import { Workspaces } from './entities/Workspaces';
+
+const getEnvData = async () => {
+  // 나중에 여기서 .env 데이터 load 해오기
+  return {
+    DB_USERNAME: 'root',
+    DB_POSSWORD: 'system',
+    DB_DATABASE: 'sleact',
+  };
+};
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, load: [getEnvData] }), // .env를  cloud 서비스 등, api 요청 보낸 후 가져와서 사용하기
+    // ConfigModule.forRoot({ isGlobal: true }), // root의 .env 에서 가져오기
     UsersModule,
     ChannelsModule,
     DmsModule,
     WorkspacesModule,
+    // TypeOrmModule.forRoot(ormconfig), // .env에서 가져오기
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'mariadb',
+          host: 'localhost',
+          port: 3306,
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATABASE'),
+          entities: [
+            ChannelChats,
+            ChannelMembers,
+            Channels,
+            DMs,
+            Mentions,
+            Users,
+            WorkspaceMembers,
+            Workspaces,
+          ],
+          migrations: [__dirname + '/src/migrations/*.ts'],
+          // cli: { migrationsDir: 'src/migrations' },
+          autoLoadEntities: true,
+          charset: 'utf8mb4',
+          synchronize: false,
+          logging: true,
+          keepConnectionAlive: true,
+        };
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [ConfigService, AppService],
