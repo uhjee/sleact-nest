@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   Post,
   Req,
   Res,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
@@ -16,11 +19,12 @@ import {
 import { User } from 'src/common/decorator/user.decorator';
 import { UserDto } from 'src/common/dto/user.dto';
 import { UndefinedToNullInterceptor } from 'src/common/interceptors/undefinedToNull.interceptor';
-import { JoinRequestDto } from './dto/join.request.dto';
+import { SignUpRequestDto } from './dto/sign-up.request.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('USERS')
 @UseInterceptors(UndefinedToNullInterceptor)
+@UsePipes(new ValidationPipe())
 @Controller('api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -36,8 +40,8 @@ export class UsersController {
 
   @ApiOperation({ summary: '회원가입' })
   @Post()
-  postUsers(@Body() data: JoinRequestDto) {
-    this.usersService.postUsers(data.email, data.nickname, data.password);
+  async signUp(@Body() data: SignUpRequestDto) {
+    await this.usersService.postUsers(data.email, data.nickname, data.password);
   }
 
   @ApiResponse({
