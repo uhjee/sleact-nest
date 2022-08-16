@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   Post,
   Req,
   Res,
+  UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -21,6 +21,7 @@ import { UserDto } from 'src/common/dto/user.dto';
 import { UndefinedToNullInterceptor } from 'src/common/interceptors/undefinedToNull.interceptor';
 import { SignUpRequestDto } from './dto/sign-up.request.dto';
 import { UsersService } from './users.service';
+import { LocalAuthGuard } from "../auth/local-auth.guard";
 
 @ApiTags('USERS')
 @UseInterceptors(UndefinedToNullInterceptor)
@@ -41,7 +42,7 @@ export class UsersController {
   @ApiOperation({ summary: '회원가입' })
   @Post()
   async signUp(@Body() data: SignUpRequestDto) {
-    await this.usersService.postUsers(data.email, data.nickname, data.password);
+    await this.usersService.signUp(data.email, data.nickname, data.password);
   }
 
   @ApiResponse({
@@ -49,6 +50,7 @@ export class UsersController {
     description: '성공',
     type: UserDto,
   })
+  @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: '로그인' })
   @Post('/login')
   logIn(@User() user) {

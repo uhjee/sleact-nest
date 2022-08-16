@@ -17,6 +17,7 @@ import { Mentions } from './entities/Mentions';
 import { Users } from './entities/Users';
 import { WorkspaceMembers } from './entities/WorkspaceMembers';
 import { Workspaces } from './entities/Workspaces';
+import { AuthModule } from "./auth/auth.module";
 
 const getEnvData = async () => {
   // 나중에 여기서 .env 데이터 load 해오기
@@ -29,6 +30,7 @@ const getEnvData = async () => {
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({ isGlobal: true, load: [getEnvData] }), // .env를  cloud 서비스 등, api 요청 보낸 후 가져와서 사용하기
     // ConfigModule.forRoot({ isGlobal: true }), // root의 .env 에서 가져오기
     UsersModule,
@@ -55,6 +57,7 @@ const getEnvData = async () => {
             Users,
             WorkspaceMembers,
             Workspaces,
+            // __dirname + '/**/*.entity.{js,ts}',
           ],
           migrations: [__dirname + '/src/migrations/*.ts'],
           // cli: { migrationsDir: 'src/migrations' },
