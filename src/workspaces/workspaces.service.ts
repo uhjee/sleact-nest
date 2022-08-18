@@ -75,4 +75,50 @@ export class WorkspacesService {
       })
       .getMany();
   }
+
+  async createWorkspaceMember(url, email) {
+    // const workspace = await this.workspacesRepository.findOne({
+    //   where: { url },
+    //   join: {
+    //     alias: 'workspace',
+    //     innerJoinAndSelect: {
+    //       channels: 'workspace.Channels',
+    //     },
+    //   },
+    // });
+
+    // 위와 query와 같음 - queryBuilder 가 좀더 세부적으로 세팅 가능
+    const workspace = await this.workspacesRepository
+      .createQueryBuilder('workspace')
+      .where({ url })
+      .innerJoinAndSelect('workspace.Channels', 'channels')
+      .getOne();
+
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    // 워크스페이스-멤버 생성
+    const workspaceMember = new WorkspaceMembers();
+    workspaceMember.WorkspaceId = workspace.id;
+    workspaceMember.UserId = user.id;
+    await this.workspaceMembersRepository.save(workspaceMember);
+
+    // 채널-멤버 생성
+    const channelMember = new ChannelMembers();
+    channelMember.ChannelId = workspace.Channels.find(
+      (channel) => channel.name === '일반',
+    ).id;
+    await this.channelMembersRepository.save(channelMember);
+  }
+
+  async getWorksapceMember(url: string, id: number) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where({ id })
+      .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
+        url,
+      })
+      .getOne();
+  }
 }
