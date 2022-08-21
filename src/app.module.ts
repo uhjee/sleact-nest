@@ -18,6 +18,8 @@ import { WorkspaceMembers } from './entities/WorkspaceMembers';
 import { Workspaces } from './entities/Workspaces';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 const getEnvData = async () => {
   // 나중에 여기서 .env 데이터 load 해오기
@@ -30,9 +32,16 @@ const getEnvData = async () => {
 
 @Module({
   imports: [
-    AuthModule,
+    // ServeStaticModule.forRoot({
+    //   // 정적 파일 제공을 위한 path 설정
+    //   rootPath: join(__dirname, '..', '..', 'uploads'),
+    //   serveStaticOptions: {
+    //     index: false,
+    //   },
+    // }),
     ConfigModule.forRoot({ isGlobal: true, load: [getEnvData] }), // .env를  cloud 서비스 등, api 요청 보낸 후 가져와서 사용하기
     // ConfigModule.forRoot({ isGlobal: true }), // root의 .env 에서 가져오기
+    AuthModule,
     UsersModule,
     ChannelsModule,
     DmsModule,

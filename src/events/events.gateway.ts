@@ -24,7 +24,7 @@ export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   logger = new Logger('WebSocket Gateway');
-
+  // 접근제어자 public으로 외부에서 socket sever 접근할 수 있도록
   @WebSocketServer() public server: Server;
 
   /**

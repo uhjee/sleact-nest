@@ -5,9 +5,12 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptionFilters/http-exception.filter';
 import passport from 'passport';
 import session from 'express-session';
+import path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // generic으로 express 사용하겠다고 명시
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 3095;
 
   // Exception filter 등록
@@ -35,6 +38,40 @@ async function bootstrap() {
   // passport 관련
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // cors 옵션
+  if (process.env.NODE_ENV === 'production') {
+    app.enableCors({
+      origin: ['https://sleact.nodebird.com'],
+      credentials: true,
+    });
+  } else {
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
+
+  // static 파일 제공
+  app.useStaticAssets(
+    process.env.NODE_ENV === 'production'
+      ? path.join(__dirname, '..', '..', 'uploads')
+      : path.join(__dirname, '..', '..', 'uploads'),
+    // : path.join(__dirname, '..', 'uploads'), // dev 모드인데도 dist에서 참조..
+    {
+      prefix: '/uploads',
+    },
+  );
+
+  app.useStaticAssets(
+    process.env.NODE_ENV === 'production'
+      ? path.join(__dirname, '..', '..', 'public')
+      : path.join(__dirname, '..', '..', 'public'),
+    // : path.join(__dirname, '..', 'public'),// // dev 모드인데도 dist에서 참조..
+    {
+      prefix: '/dist',
+    },
+  );
 
   // swagger setting (http://localhost:3000/api)
   const swaggerConfig = new DocumentBuilder()
