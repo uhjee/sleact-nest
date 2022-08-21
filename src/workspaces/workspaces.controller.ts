@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { WorkspacesService } from './workspaces.service';
 import { User } from '../common/decorator/user.decorator';
@@ -17,7 +17,9 @@ export class WorkspacesController {
   createWorkspac() {}
 
   @Get(':url/members')
-  getAllMembersFromWorkspace() {}
+  getAllMembersFromWorkspace(@Param('url') url: string) {
+    return this.workspacesService.getWorkspaceMembers(url);
+  }
 
   @Post(':url/members')
   inviteMembersToWorkspace() {}

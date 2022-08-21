@@ -6,6 +6,7 @@ import { ChannelMembers } from '../entities/ChannelMembers';
 import { Workspaces } from '../entities/Workspaces';
 import { ChannelChats } from '../entities/ChannelChats';
 import { Users } from '../entities/Users';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class ChannelsService {
@@ -20,6 +21,7 @@ export class ChannelsService {
     private channelChatsRepository: Repository<ChannelChats>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private readonly eventGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -147,13 +149,52 @@ export class ChannelsService {
     );
   }
 
+  async createWorkspaceChannelChats({
+    url,
+    name,
+    content,
+    myId,
+  }: {
+    url: string;
+    name: string;
+    content: string;
+    myId: number;
+  }) {
+    const channel = await this.channelRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+
+    const chats = new ChannelChats();
+    chats.content = content;
+    chats.UserId = myId;
+    chats.ChannelId = channel.id;
+    const savedChat = await this.channelChatsRepository.save(chats);
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: savedChat.id },
+      relations: ['User', 'Channel'],
+    });
+
+    // Todo:: socket.io로 '워크스페이스 - 채널' 모든 사용자에게 메세지 전송
+    this.eventGateway.server
+      .to(`/ws-${url}-${channel.id}`)
+      .emit('message', chatWithUser);
+  }
+
   /**
    * TODO:: 날짜 기간 조건 조회
    * @param url
    * @param name
    * @param after
    */
-  async getChannelUnreadsCount(url: string, name: string, after: ConstructorParameters<typeof Date>[0]) {
+  async getChannelUnreadsCount(
+    url: string,
+    name: string,
+    after: ConstructorParameters<typeof Date>[0],
+  ) {
     const channel = await this.channelRepository
       .createQueryBuilder('channel')
       .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {

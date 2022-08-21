@@ -8,7 +8,6 @@ import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as ormconfig from '../ormconfig';
 import { ChannelChats } from './entities/ChannelChats';
 import { ChannelMembers } from './entities/ChannelMembers';
 import { Channels } from './entities/Channels';
@@ -17,7 +16,8 @@ import { Mentions } from './entities/Mentions';
 import { Users } from './entities/Users';
 import { WorkspaceMembers } from './entities/WorkspaceMembers';
 import { Workspaces } from './entities/Workspaces';
-import { AuthModule } from "./auth/auth.module";
+import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
 
 const getEnvData = async () => {
   // 나중에 여기서 .env 데이터 load 해오기
@@ -69,6 +69,7 @@ const getEnvData = async () => {
         };
       },
     }),
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, AppService],
