@@ -14,7 +14,11 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Global validationPipe 등록
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // transform: true, // dto 자동 변환
+    }),
+  );
 
   // express-session
   app.use(
