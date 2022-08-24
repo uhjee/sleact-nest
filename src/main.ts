@@ -59,7 +59,7 @@ async function bootstrap() {
       : path.join(__dirname, '..', '..', 'uploads'),
     // : path.join(__dirname, '..', 'uploads'), // dev 모드인데도 dist에서 참조..
     {
-      prefix: '/uploads',
+      prefix: '/uploads', // 이 경로로 요청이 오면, 위 설정된 dir에서 제공한다.
     },
   );
 
@@ -69,7 +69,7 @@ async function bootstrap() {
       : path.join(__dirname, '..', '..', 'public'),
     // : path.join(__dirname, '..', 'public'),// // dev 모드인데도 dist에서 참조..
     {
-      prefix: '/dist',
+      prefix: '/dist', // 이 경로로 요청이 오면, 위 설정된 dir에서 제공한다.
     },
   );
 

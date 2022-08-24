@@ -135,6 +135,7 @@ export class ChannelsController {
           );
         },
       }),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     }),
   )
   @Post(':url/channels/:name/images')

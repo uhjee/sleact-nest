@@ -205,7 +205,7 @@ export class ChannelsService {
 
     for (let i = 0; i < files.length; i++) {
       const chats = new ChannelChats();
-      chats.content = files[i].path;
+      chats.content = files[i].path; // browser에서 이 경로로 asset 요청
       chats.UserId = myId;
       chats.ChannelId = channel.id;
 
